@@ -1,5 +1,5 @@
 import { error, json } from '@sveltejs/kit';
-import type { RequestHandler } from '../../create_word/$types';
+import type { RequestHandler } from "@sveltejs/kit";
 import type { SentenceType, WordType } from '../../types';
  import { supabase } from '$lib/supabase_client';
 

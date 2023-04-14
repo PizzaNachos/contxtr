@@ -4,33 +4,35 @@
 	import {draw, blur} from 'svelte/transition'
 	import { supabase } from '$lib/supabase_client';
     import { afterNavigate, beforeNavigate } from '$app/navigation';
+
 	let logged_in = 0
+	let user = {}
+
+	async function get_session(){
+		let s = await supabase.auth.refreshSession();
+		if(s.data.session) {
+			user=s.data
+			logged_in = 1
+		} else {
+			logged_in = -1
+		}
+	}
+	get_session()
 	let usr = {
 		usr:"",
 		pws:""
 	}
 
-	supabase.auth.refreshSession().then(res => {
-		if (res.data.session == null){
-			logged_in = -1
-		} else {
-			logged_in = 1
-		}
-	}).catch(err => {
-		logged_in = -1
-	})
-
 	const l = async () => {
-		const { data, error } = await supabase.auth.signInWithPassword({
+		const sb = await supabase.auth.signInWithPassword({
 			email: usr.usr,
-			password: usr.pws,
+			password: usr.psw,
 		})
-		if (error){
-			logged_in = -1
-			// console.log(error)
-		} else if(data){
+		if (sb.data.session) {
 			logged_in = 1
-			// console.log(data, supabase)
+		} else {
+			console.log(sb)
+			logged_in = -1
 		}
 	}
 	let loading = false
