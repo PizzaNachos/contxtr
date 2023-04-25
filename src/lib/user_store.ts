@@ -8,8 +8,8 @@ export let user = writable({
 });
 
 export async function refresh_user(){
-    let s = await supabase.auth.refreshSession();
-    if(s.data.session) {
+    let s = await supabase.auth.getUser()
+    if(s.data) {
         user.set({
             user: s.data,
             logged_in: 1
