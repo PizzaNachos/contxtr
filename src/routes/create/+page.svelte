@@ -23,14 +23,14 @@
             error_message = "Cannot create empty word";
             let sess = await supabase.auth.getUser()
             console.log("Get user",sess)
-            console.log("From Storage", user.user.session)
+            console.log("From Storage", $user.user.id)
             return;
         }
 
 
         let new_word = await fetch("/aapi/create/word",{
             method: "POST",
-            body: JSON.stringify({word:create_word_word, sesh: $user.user.session})
+            body: JSON.stringify({word:create_word_word, sesh: $user.user.id})
         }).then(res => res.json())
         .catch(err => {
             console.log("API Broke?")
@@ -57,7 +57,7 @@
         let data = {
             word: chosen_word,
             sentence: create_sentence_sentence,
-            sesh: $user.user.session
+            sesh: $user.user.id
         }
         let new_sentence = await fetch("/aapi/create/sentence",{
             method: "POST",
