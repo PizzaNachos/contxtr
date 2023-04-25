@@ -9,9 +9,10 @@ export let user = writable({
 
 export async function refresh_user(){
     let s = await supabase.auth.getUser()
-    if(s.data) {
+    console.log("In Refresh", s)
+    if(s.data.user != null) {
         user.set({
-            user: s.data,
+            user: s.data.user,
             logged_in: 1
         })
     } else {

@@ -8,7 +8,6 @@ export const load = async ({ fetch, params, url, cookies}) => {
     let usr_cookie = cookies.get("sb-access-token")
     let sess = {}
     if (usr_cookie == undefined){
-        sess = await supabase.auth.getUser("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNjgyMzgxNzU4LCJzdWIiOiJlYWEwN2QxYy1lNDliLTQ2YTItODA0ZS1lNWM5MjM0ZjNjOWIiLCJlbWFpbCI6Im1pY2hhZWxAY29sb3JhZG80eDQubmV0IiwicGhvbmUiOiIiLCJhcHBfbWV0YWRhdGEiOnsicHJvdmlkZXIiOiJlbWFpbCIsInByb3ZpZGVycyI6WyJlbWFpbCJdfSwidXNlcl9tZXRhZGF0YSI6e30sInJvbGUiOiJhdXRoZW50aWNhdGVkIiwiYWFsIjoiYWFsMSIsImFtciI6W3sibWV0aG9kIjoib3RwIiwidGltZXN0YW1wIjoxNjgyMzAxNTIxfV0sInNlc3Npb25faWQiOiI1NDk5MDVjNi0wNjM5LTQ1NmMtYjIxYy01MzE1NGYyZjI3ZjkifQ.3GRThM-eaYJN9N88CANWdQXpd1hGyGHlC1SZdXwOGmA");
     } else {
         sess = supabase.auth.getUser(usr_cookie)
     }

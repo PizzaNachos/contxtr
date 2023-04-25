@@ -1,12 +1,14 @@
+<script context="module">
+	import { refresh_user } from '$lib/user_store';
+	refresh_user()
+</script>
 <script>
 
 	import './styles.css';
 	import {draw, blur} from 'svelte/transition'
 	import { supabase } from '$lib/supabase_client';
     import { afterNavigate, beforeNavigate } from '$app/navigation';
-	import { user, login, refresh_user } from '$lib/user_store';
-	
-	refresh_user()
+	import { user, login } from '$lib/user_store';
 
 	let usr = {
 		usr:"",
