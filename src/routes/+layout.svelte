@@ -38,18 +38,10 @@
 			<a href="/create">Create stuff</a>
 		</div>
 	</header>
-	{#if !loading}
-	<main transition:blur>
+	
+	<main transition:blur class:loading>
 		<slot />
 	</main>
-	{:else} 
-	<div class="l_c">
-		<div class="loading">
-			<span>Loading</span>
-		</div>
-	</div>
-
-	{/if}
 
 {:else if $user.logged_in == 0 }
 <div class='l_c'>
