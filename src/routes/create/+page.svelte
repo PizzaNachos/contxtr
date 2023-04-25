@@ -22,7 +22,8 @@
             error = true;
             error_message = "Cannot create empty word";
             let sess = await supabase.auth.getUser()
-            console.log(sess)
+            console.log("Get user",sess)
+            console.log("From Storage", user.user.session)
             return;
         }
 
