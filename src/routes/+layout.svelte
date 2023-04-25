@@ -4,37 +4,15 @@
 	import {draw, blur} from 'svelte/transition'
 	import { supabase } from '$lib/supabase_client';
     import { afterNavigate, beforeNavigate } from '$app/navigation';
+	import { user, login, refresh_user } from '$lib/user_store';
+	
+	refresh_user()
 
-	let logged_in = 0
-	let user = {}
-
-	async function get_session(){
-		let s = await supabase.auth.refreshSession();
-		if(s.data.session) {
-			user=s.data
-			logged_in = 1
-		} else {
-			logged_in = -1
-		}
-	}
-	get_session()
 	let usr = {
 		usr:"",
 		pws:""
 	}
 
-	const l = async () => {
-		const sb = await supabase.auth.signInWithPassword({
-			email: usr.usr,
-			password: usr.psw,
-		})
-		if (sb.data.session) {
-			logged_in = 1
-		} else {
-			console.log(sb)
-			logged_in = -1
-		}
-	}
 	let loading = false
 	beforeNavigate(() => {
 		loading = true;
@@ -44,38 +22,28 @@
 	})
 </script>
 
-<!-- <div class="app"> -->
-	{#if logged_in == -1}
-	<main>
-		<input type=text bind:value={usr.usr}/>
-		<input type=password bind:value={usr.pws}/>
-		<button on:click={() => l()}>L</button>
-	</main>
+<div>
+{#if $user.logged_in == -1}
+<main>
+	<input type=text bind:value={usr.usr}/>
+	<input type=password bind:value={usr.pws}/>
+	<button on:click={() => login(usr)}>L</button>
+</main>
 
-	{:else if logged_in == 1}
-		<header>
-			<a href="/">Contxt'r</a>
-			<div class='links'>
-				<a href="/tag">Words</a>
-				<a href="/create">Create stuff</a>
-			</div>
-
-		</header>
-		{#if !loading}
-		<main transition:blur>
-			<slot />
-		</main>
-		{:else} 
-		<div class="l_c">
-			<div class="loading">
-				<span>Loading</span>
-			</div>
+{:else if $user.logged_in == 1}
+	<header>
+		<a href="/">Contxt'r</a>
+		<div class='links'>
+			<a href="/tag">Words</a>
+			<a href="/create">Create stuff</a>
 		</div>
-
-		{/if}
-
-	{:else if logged_in == 0 }
-	<div class='l_c'>
+	</header>
+	{#if !loading}
+	<main transition:blur>
+		<slot />
+	</main>
+	{:else} 
+	<div class="l_c">
 		<div class="loading">
 			<span>Loading</span>
 		</div>
@@ -83,6 +51,14 @@
 
 	{/if}
 
+{:else if $user.logged_in == 0 }
+<div class='l_c'>
+	<div class="loading">
+		<span>Loading</span>
+	</div>
+</div>
+{/if}
+</div>
 <style>
 	.l_c{
 		height:100vh;

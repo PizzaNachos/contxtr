@@ -3,22 +3,44 @@
 // import type { PageLoad } from './$types';
 // import type { SentenceType, WordType } from '../aapi/types';
 import { supabase } from "$lib/supabase_client";
-export const ssr = false;
 
+export const load = async ({ fetch, params, url, cookies}) => {
+    let usr_cookie = cookies.get("sb-access-token")
+    let sess = {}
+    if (usr_cookie == undefined){
+        sess = await supabase.auth.getUser("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNjgyMzgxNzU4LCJzdWIiOiJlYWEwN2QxYy1lNDliLTQ2YTItODA0ZS1lNWM5MjM0ZjNjOWIiLCJlbWFpbCI6Im1pY2hhZWxAY29sb3JhZG80eDQubmV0IiwicGhvbmUiOiIiLCJhcHBfbWV0YWRhdGEiOnsicHJvdmlkZXIiOiJlbWFpbCIsInByb3ZpZGVycyI6WyJlbWFpbCJdfSwidXNlcl9tZXRhZGF0YSI6e30sInJvbGUiOiJhdXRoZW50aWNhdGVkIiwiYWFsIjoiYWFsMSIsImFtciI6W3sibWV0aG9kIjoib3RwIiwidGltZXN0YW1wIjoxNjgyMzAxNTIxfV0sInNlc3Npb25faWQiOiI1NDk5MDVjNi0wNjM5LTQ1NmMtYjIxYy01MzE1NGYyZjI3ZjkifQ.3GRThM-eaYJN9N88CANWdQXpd1hGyGHlC1SZdXwOGmA");
+    } else {
+        sess = supabase.auth.getUser(usr_cookie)
+    }
+    const user = sess?.data?.user?.id ?? null
+    if (user == null){
+        return {
+            sentence_map: new Map(),
+            words: []
+        }
+    }
+    
 
-export const load = async ({ fetch, params }) => {
-    let tag = params.tipo
-    console.log("Tag:", tag)
+    let tag =  params.tipo
+    let next_study = Date.now();
+    if (url?.searchParams?.get("time") == "future") {
+        // One hour
+        next_study += (1000 * 60 * 60 * 1)
+        console.log("Future",next_study)
+    }
+
 
     let tag_supabase = (await supabase.from("tags").select().eq("name", tag));
     let tag_id = tag_supabase.data?.at(0)?.id ?? -1
-    console.log("t.id", tag_id)
+    // console.log("t.id", tag_id)
     let words = [];
     if (tag_id != -1){
         let { data } = await supabase
             .from("words")
             .select("*, word_to_tag(*)")
+            .eq("user_id", user)
             .eq("word_to_tag.tag_id", tag_id)
+            .lt('next_study', next_study)
             .order('next_study', 
                 { ascending: true }
             );
@@ -27,24 +49,31 @@ export const load = async ({ fetch, params }) => {
         let { data } = await supabase
             .from("words")
             .select()
-            .lt('next_study', Date.now())
+            .eq("user_id", user)
+            .lt('next_study', next_study)
             .order('next_study', 
                 { ascending: true }
             );
         words = data ?? []
     }
     
-    // console.log("Number of words", words.length)
+    console.log("Number of words", words.length)
 
     let m = new Map()
     let filtered_words = [];
-    console.log(words.map(w => w.word))
+
+    let sentences_callback = []
     for (let i = 0; i < words.length; i++) {
-        let { data, error } = await supabase
+        let current =  supabase
             .from('sentences')
             .select()
             .eq('word_id', words[i].id)
+            .eq("user_id", user)
+        sentences_callback.push(current)
+    }
 
+    for(let i = 0; i < sentences_callback.length; i++){
+        let {data, error} = await sentences_callback[i];
         if (error) {
             console.log(error)
         }
@@ -54,8 +83,6 @@ export const load = async ({ fetch, params }) => {
         } 
     }
 
-    // console.log(words)
-    // console.log(m)
     return {
         sentence_map: m,
         words: filtered_words

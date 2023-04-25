@@ -97,11 +97,12 @@ export const POST = (async ({request}) => {
     const ok = await supabase.from('sentences').update({last_seen: now}).eq('id',sentence_id)
     console.log(ok)
     // Word competence should absolutly be like an object encoding lots of info 
-
-    let new_competence = calculate_new_competence(word.competence_object ?? default_competence,change);
+    let new_competence = word.competence_object ?? default_competence;
+    if (!word.reverse){
+        new_competence = calculate_new_competence(word.competence_object ?? default_competence,change);
+    }
     let new_interval = calculate_next_study(new_competence) * 1000 * 60 
     let next_study = now + new_interval
-
 
     const sp = await supabase
         .from('words')

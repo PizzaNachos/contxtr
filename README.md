@@ -1,38 +1,11 @@
-# create-svelte
+# contxt'r
+This is a simple flash card style app built for vocabulary learning tailored twords foreign language.
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte).
+It runs off the idea that reading a word in context is so much more helpful than in isolation
+With the same SM-2 spaced algorithm as the Anki flashcard app.
+Each word is associated with sentences and each time you are exposes to a word you should see a different sentence using that word. Words can be associated together as variations of stuff.
 
-## Creating a project
+Unsure how to tackle the problem of conjucated words being easier to recall directly after each other (ex, hablar -> fail (now seen) hablo -> good (should have been fail and would be on its own))
 
-If you're seeing this, you've probably already done this step. Congrats!
-
-```bash
-# create a new project in the current directory
-npm create svelte@latest
-
-# create a new project in my-app
-npm create svelte@latest my-app
-```
-
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```bash
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-## Building
-
-To create a production version of your app:
-
-```bash
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+Potential solution:
+    have a tree of conjucations that influence each other, associated words with their own competence but they are associated with each other (maybe with a strength? guapo vs guapa is very strongly but comer vs comiste is less associated) and the strength of one competence update affects the others by their associated strength

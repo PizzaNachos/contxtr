@@ -1,12 +1,11 @@
 <script lang="ts">
 	import Sentence from '$lib/images/Sentence.svelte';
     import { each } from 'svelte/internal';
-	// import type { PageData } from '../../[[tipo]]/$types';
 	import type {WordType, SentenceType} from "../../aapi/types";
-
+    import { invalidateAll } from '$app/navigation';
+	import {draw, blur} from 'svelte/transition'
 
 	export let data;
-    console.log("Svelte Data:" , data)
 
 	let {sentence_map, words} = data;
 	let test_word : WordType = {
@@ -24,7 +23,6 @@
 	let word = words.shift() ?? null// ?? test_word;
 	$: currenct_sentences = sentence_map.get(word?.word ?? "")?.sort((a,b) => a.last_seen < b.last_seen) ?? [];
 	$: s = currenct_sentences.shift()
-	$: console.log(s)
 	let sentence_loading = false;
 
 	async function update_word(level){
@@ -47,11 +45,13 @@
 			}
 			words.splice(i,0,word)
 			word = words.shift() ?? test_word;
-			console.log("Updated Word",new_w)
 		} else {
 			word = words.shift() ?? null;
+			if(word == null){
+				invalidateAll();
+			}
 		}
-
+		words = words;
 		currenct_sentences.splice(currenct_sentences.length, 0, s)
 		sentence_loading = false;
 	}
@@ -64,15 +64,20 @@
 
 <div class=parent>
 	{#if (words.length == 0 && word == null)}
-		<span>Nothing left to study</span>			
+		<span transition:blur>
+			<span>Nothing left to study</span>			
+			<a href="/tag?time=future">Study ahead by 1 hour</a>
+		</span>
 	{:else}
+	<span transition:blur>
 		<Sentence 
-			me={s} 
-			target={word} 
-			update_function={update_word}
-			loading_w={sentence_loading}
-			/>
-			<span>Words left to study {words.length}</span>
+		me={s} 
+		target={word} 
+		update_function={update_word}
+		loading_w={sentence_loading}
+		/>
+	<span>Words left to study {words.length}</span>
+	</span>
 	{/if}
 
 </div>

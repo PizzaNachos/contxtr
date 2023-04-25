@@ -23,6 +23,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@supabase/auth-helpers-sveltekit": "^0.9.4",
 		"@supabase/supabase-js": "^2.8.0",
 		"@sveltejs/adapter-static": "^2.0.1"
 	}
