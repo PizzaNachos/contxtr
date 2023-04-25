@@ -3,6 +3,7 @@
 	import { blur} from 'svelte/transition'
     import { supabase } from '$lib/supabase_client.js';
   import { user } from '$lib/user_store.js';
+  import { get } from 'svelte/store';
     export let data;
     let {tags,words, sentences} = data
 
@@ -23,14 +24,14 @@
             error_message = "Cannot create empty word";
             let sess = await supabase.auth.getUser()
             console.log("Get user",sess)
-            console.log("From Storage", $user.user.id)
+            console.log("From Storage", get(user).user.id)
             return;
         }
 
-
+        let u = get(user).user.id
         let new_word = await fetch("/aapi/create/word",{
             method: "POST",
-            body: JSON.stringify({word:create_word_word, sesh: $user.user.id})
+            body: JSON.stringify({word:create_word_word, sesh: u})
         }).then(res => res.json())
         .catch(err => {
             console.log("API Broke?")
@@ -54,10 +55,11 @@
             console.log(a)
             return;
         }
+        let u = get(user).user.id
         let data = {
             word: chosen_word,
             sentence: create_sentence_sentence,
-            sesh: $user.user.id
+            sesh: u
         }
         let new_sentence = await fetch("/aapi/create/sentence",{
             method: "POST",
