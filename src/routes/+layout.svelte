@@ -1,20 +1,18 @@
 <script context="module">
-	import { refresh_user } from '$lib/user_store';
+	import {refresh_user} from "$lib/user_store"
 	refresh_user()
-</script>
-<script>
 
+</script>
+<script lang="ts">
 	import './styles.css';
-	import {draw, blur} from 'svelte/transition'
-	import { supabase } from '$lib/supabase_client';
+	import {blur} from 'svelte/transition'
     import { afterNavigate, beforeNavigate } from '$app/navigation';
-	import { user, login } from '$lib/user_store';
+	import { user, login,logout } from '$lib/user_store';
 
 	let usr = {
 		usr:"",
-		pws:""
+		psw:""
 	}
-
 	let loading = false
 	beforeNavigate(() => {
 		loading = true;
@@ -26,12 +24,11 @@
 
 <div>
 {#if $user.logged_in == -1}
-<main>
-	<input type=text bind:value={usr.usr}/>
-	<input type=password bind:value={usr.pws}/>
-	<button on:click={() => login(usr)}>L</button>
-</main>
-
+	<main>
+		<input type=text bind:value={usr.usr}/>
+		<input type=password bind:value={usr.psw}/>
+		<button on:click={() => login(usr)}>L</button>
+	</main>
 {:else if $user.logged_in == 1}
 	<header>
 		<a href="/">Contxt'r</a>
@@ -39,20 +36,21 @@
 			<a href="/tag">Words</a>
 			<a href="/create">Create stuff</a>
 		</div>
+		<button on:click={logout} class="logout">Logout</button>
 	</header>
-	
-	<main transition:blur class:loading>
+
+	<main class:loading>
 		<slot />
 	</main>
-
 {:else if $user.logged_in == 0 }
-<div class='l_c'>
-	<div class="loading">
-		<span>Loading</span>
+	<div class='l_c'>
+		<div class="auth_loading">
+			<span>Loading</span>
+		</div>
 	</div>
-</div>
 {/if}
 </div>
+
 <style>
 	.l_c{
 		height:100vh;
@@ -76,14 +74,33 @@
 		font-size: 2em;
 		padding: 1em;
 	}
+	header > button{
+		background-color: inherit;
+		font-size: 1rem;
+		transition: all .32s ease-in-out;
+		background-color: rgb(30,30,30);
+		padding: 10px;
+		color:white;
+		border: 2px solid rgb(30,30,30);
+	}
+	.logout{
+		justify-self: flex-end;
+	}
 	.links > a {
 		font-size: 1rem;
-		border-radius: 5px;
-		transition: all .25s ease-in-out;
+		transition: all .32s ease-in-out;
+		border: 2px solid rgb(30,30,30);
 		background-color: rgb(30,30,30);
 		padding: 10px;
 	}
-	a:hover{
-		background-color: rgb(30,30,30);
+	.links > a:hover {
+		background-color: rgb(45,45,45);
+		border: 2px solid rgb(100,100,100);
+		border-radius: 7px;
+	}
+	button:hover{
+		background-color: rgb(45,45,45);
+		border: 2px solid rgb(100,100,100);
+		border-radius: 7px;
 	}
 </style>

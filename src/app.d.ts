@@ -6,6 +6,13 @@ declare global {
 		// interface Locals {}
 		// interface PageData {}
 		// interface Platform {}
+		interface Locals {
+			supabase: SupabaseClient<Database>;
+			getSession(): Promise<Session | null>;
+		  }
+		  interface PageData {
+			session: Session | null;
+		  }
 	}
 }
 

@@ -4,11 +4,14 @@
 // import type { SentenceType, WordType } from '../aapi/types';
 import { supabase } from "$lib/supabase_client";
 
-export const load = async ({ fetch, params, url, cookies}) => {
+export const load = async (data) => {
+    console.log(data)
+    let { fetch, params, url, cookies} = data
     let usr_cookie = cookies.get("sb-access-token")
+    console.log(usr_cookie)
+    
     let sess = {}
-    if (usr_cookie == undefined){
-    } else {
+    if (usr_cookie){
         sess = supabase.auth.getUser(usr_cookie)
     }
     const user = sess?.data?.user?.id ?? null

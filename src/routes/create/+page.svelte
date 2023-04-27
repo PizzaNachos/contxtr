@@ -123,7 +123,7 @@
         setTimeout(() => success = false, 1000)
     }
 </script>
-<div class='container'>
+<div class='container' in:blur>
     <div>
         Create Sentence:
         <div class="create_sentence">

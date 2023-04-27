@@ -7,9 +7,9 @@ export let user = writable({
     logged_in: 0
 });
 
+
 export async function refresh_user(){
     let s = await supabase.auth.getUser()
-    console.log("In Refresh", s)
     if(s.data.user != null) {
         user.set({
             user: s.data.user,
@@ -21,22 +21,30 @@ export async function refresh_user(){
             logged_in: -1
         })
     }
-}
-export async function login(usr) {
+}	
+
+export async function login(usr : {usr:string, psw:string}) {
     const s = await supabase.auth.signInWithPassword({
-        email: usr.usr,
-        password: usr.psw,
+        email: usr.usr.trim(),
+        password: usr.psw.trim(),
     })
-    if(s.data.session) {
+    if(s.data.user != null) {
+        console.log("Logged in")
         user.set({
-            user: s.data,
+            user: s.data.user,
             logged_in: 1
         })
     } else {
+        console.error("Not loggen in")
         user.set({
             user: null,
             logged_in: -1
         })
     }
 }
-
+export async function logout(){
+    let data = await supabase.auth.signOut();
+    if(!data.error){
+        user.set({user:null, logged_in:-1})
+    }
+}

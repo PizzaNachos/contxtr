@@ -15,7 +15,7 @@ a{
 	color: white;
 }
 
-.loading{
+.auth_loading{
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
@@ -24,8 +24,9 @@ a{
 	height: 100%;
 	animation: 2s ease 0s infinite loading_anim;
 }
-.loading span{
-	/* padding: ; */
+.loading{
+	transition: all .25s ease-in-out;
+	opacity: .1;
 }
 @keyframes loading_anim {
 	0% {

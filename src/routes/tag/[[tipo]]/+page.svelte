@@ -62,14 +62,15 @@
 	<meta name="description" content="Contxt App" />
 </svelte:head>
 
-<div class=parent>
+<div class=parent in:blur>
 	{#if (words.length == 0 && word == null)}
-		<span transition:blur>
-			<span>Nothing left to study</span>			
+		<span in:blur>
+			<div>Nothing left to study</div>
+			<br/>			
 			<a href="/tag?time=future">Study ahead by 1 hour</a>
 		</span>
 	{:else}
-	<span transition:blur>
+	<span in:blur>
 		<Sentence 
 		me={s} 
 		target={word} 
