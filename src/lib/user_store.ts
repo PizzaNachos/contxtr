@@ -11,6 +11,7 @@ export let user = writable({
 export async function refresh_user(){
     let s = await supabase.auth.getUser()
     if(s.data.user != null) {
+        console.log(s)
         user.set({
             user: s.data.user,
             logged_in: 1
