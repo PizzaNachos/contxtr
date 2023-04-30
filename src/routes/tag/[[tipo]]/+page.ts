@@ -3,19 +3,14 @@
 // import type { PageLoad } from './$types';
 // import type { SentenceType, WordType } from '../aapi/types';
 import { supabase } from "$lib/supabase_client";
-
-export const load = async (data) => {
-    console.log(data)
-    let { fetch, params, url, cookies} = data
-    let usr_cookie = cookies.get("sb-access-token")
-    console.log(usr_cookie)
-    
-    let sess = {}
-    if (usr_cookie){
-        sess = supabase.auth.getUser(usr_cookie)
-    }
-    const user = sess?.data?.user?.id ?? null
-    if (user == null){
+import { user, get_user_id } from "$lib/user_store";
+import { get } from 'svelte/store';
+export const ssr = false;
+export const load = async ({params, url, fetch, depends}) => {
+    depends("Äuth")
+    const u = await get_user_id()
+    if (u == null){
+        user.set({user:null, logged_in:-1, loading: false});
         return {
             sentence_map: new Map(),
             words: []
@@ -34,59 +29,61 @@ export const load = async (data) => {
 
     let tag_supabase = (await supabase.from("tags").select().eq("name", tag));
     let tag_id = tag_supabase.data?.at(0)?.id ?? -1
-    // console.log("t.id", tag_id)
     let words = [];
     if (tag_id != -1){
         let { data } = await supabase
             .from("words")
             .select("*, word_to_tag(*)")
-            .eq("user_id", user)
+            .eq("user_id", u)
             .eq("word_to_tag.tag_id", tag_id)
             .lt('next_study', next_study)
             .order('next_study', 
                 { ascending: true }
             );
+        console.log("data",data)
         words = data ?? []
     } else {
         let { data } = await supabase
             .from("words")
             .select()
-            .eq("user_id", user)
+            .eq("user_id", u)
             .lt('next_study', next_study)
             .order('next_study', 
                 { ascending: true }
             );
+        console.log("First fetch data", data)
         words = data ?? []
     }
-    
+
     console.log("Number of words", words.length)
 
-    let m = new Map()
-    let filtered_words = [];
+    let test = await supabase
+        .from('sentences')
+        .select()
+        .in('word_id', words.map(w => w.id))
+        .eq("user_id", u)
 
-    let sentences_callback = []
-    for (let i = 0; i < words.length; i++) {
-        let current =  supabase
-            .from('sentences')
-            .select()
-            .eq('word_id', words[i].id)
-            .eq("user_id", user)
-        sentences_callback.push(current)
-    }
-
-    for(let i = 0; i < sentences_callback.length; i++){
-        let {data, error} = await sentences_callback[i];
-        if (error) {
-            console.log(error)
+    if(test.error != null){
+        console.log(test)
+        return {
+            sentence_map: new Map(),
+            words: []
         }
-        if(data.length != 0 && data != null){
-            filtered_words.push(words[i])
-            m.set(words[i].word, data ?? []);
-        } 
     }
+    let all_sen = test.data
+    let test_map = new Map()
+
+    for(let i = 0; i < all_sen.length; i++){
+        let tmp_arr = test_map.get(all_sen[i].word_id) ?? []
+        tmp_arr.push(all_sen[i])
+        test_map.set(all_sen[i].word_id, tmp_arr)
+    }
+
+    console.log(test_map)
+
 
     return {
-        sentence_map: m,
-        words: filtered_words
+        sentence_map: test_map,
+        words: words
     }
 }

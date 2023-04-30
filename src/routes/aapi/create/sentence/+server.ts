@@ -1,20 +1,12 @@
 import { error, json } from '@sveltejs/kit';
 import type { RequestHandler } from '../../create_sentence/$types';
-import type { SentenceType, WordType } from '../../types';
+import type { SentenceType, WordType } from '../../../../lib/types';
  import { supabase } from '$lib/supabase_client';
 
 export const POST = (async ({request}) => {
     let {word, sentence, sesh} = await request.json().catch(err => "broke")
-    let user = sesh.user.id
-    let postable_data = {
-        text: sentence.sentence,
-        translation: sentence.translation,
-        word_id: word.id,
-        match_regex: sentence.translation[1],
-        last_seen: Date.now(),
-        user_id: user
-    }
-    const returned = await supabase.from('sentences').insert(postable_data).select()
+
+    console.log(returned)
     // console.log("new", new_word)
     // Word competence should absolutly be like an object encoding lots of info 
 

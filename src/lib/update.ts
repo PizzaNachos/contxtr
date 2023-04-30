@@ -1,7 +1,7 @@
 import { error, json } from '@sveltejs/kit';
 import type { RequestHandler } from "@sveltejs/kit";
-import type { Competence, SentenceType, WordType } from '../../../../lib/types';
- import { supabase } from '$lib/supabase_client';
+import type { Competence, SentenceType, WordType } from './types';
+import { supabase } from '$lib/supabase_client';
 
 const calculate_new_competence = (old : Competence, change : 1|2|3|4) => {
     let updated : Competence = old
@@ -91,8 +91,8 @@ let default_competence : Competence = {
     ease: 0,
     learning_step: 1,
 }
-export const POST = (async ({request}) => {
-    let {word, change, sentence_id} = await request.json().catch(err => "broke")
+export async function update_word_database(req : {word: WordType, change: 1 | 2 | 3 | 4, sentence_id:number}) {
+    let {word, change, sentence_id} = req
     let now = Date.now()
     const ok = await supabase.from('sentences').update({last_seen: now}).eq('id',sentence_id)
     console.log(ok)
@@ -110,13 +110,15 @@ export const POST = (async ({request}) => {
         .eq('id', word.id)
         .select()
 
-
-    let new_one = sp?.data[0]
-    console.log(new_one)
-    if (new_one?.next_study < now){
-        return json(new_one)
-    } else {
-        return json("")
+    if(sp.error){
+        throw sp.error;
     }
 
-}) satisfies RequestHandler;
+    let new_one : WordType | null = sp?.data[0]
+    console.log(new_one)
+    if (new_one?.next_study < now){
+        return new_one
+    } else {
+        return null
+    }
+}

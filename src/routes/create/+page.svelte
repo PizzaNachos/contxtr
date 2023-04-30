@@ -2,16 +2,12 @@
     import type { WordType } from '../aapi/types.js';
 	import { blur} from 'svelte/transition'
     import { supabase } from '$lib/supabase_client.js';
-  import { user } from '$lib/user_store.js';
-  import { get } from 'svelte/store';
+    import { get_user_id, user } from '$lib/user_store.js';
+    import { get } from 'svelte/store';
+    import { post_sentence, post_word } from '$lib/create.js';
+    import ToastCol, {toast} from '$lib/components/Toast_col.svelte';
     export let data;
     let {tags,words, sentences} = data
-
-    let error = false;
-    let error_message = ""
-
-    let success = false;
-    let success_message = ""
 
     let create_word_word =""
     let create_sentence_sentence = {
@@ -20,68 +16,45 @@
     }
     async function create_word(e){
         if (create_word_word == ""){
-            error = true;
-            error_message = "Cannot create empty word";
-            let sess = await supabase.auth.getUser()
-            console.log("Get user",sess)
-            console.log("From Storage", get(user).user.id)
+            toast("Cannot create Empty Word", 2000, "rgb(100,0,0)","white")
             return;
         }
 
-        let u = get(user).user.id
-        let new_word = await fetch("/aapi/create/word",{
-            method: "POST",
-            body: JSON.stringify({word:create_word_word, sesh: u})
-        }).then(res => res.json())
-        .catch(err => {
-            console.log("API Broke?")
-            error = true
-            error_message = "There was a car API error :( " + err
-        })
-
-        success = true
-        success_message = "Created Word"
-
-        create_word_word = "";
-
-        words.push(new_word)
-        words = words
+        let ret = await post_word(create_word_word)
+        if(ret.data){
+            toast("Sentence Created", 2000, "rgb(0,150,0)","white")
+            create_word_word = "";
+            words.push(ret.data)
+            words = words
+        } else {
+            console.error(ret.error)
+            toast("There was an API error(Try refreshing the page or relogging in) :(", 2000, "rgb(100,0,0)","white")
+        }
     }
     async function create_sentence(){
         if (create_sentence_sentence.translation[1] == "" || chosen_word == null){
-            error = true;
-            error_message = "Cannot create empty Sentence"
-            let a = await supabase.auth.getUser();
-            console.log(a)
+            toast("Cannot create Empty Sentence", 2000, "rgb(100,0,0)","white")
             return;
         }
-        let u = get(user).user.id
-        let data = {
-            word: chosen_word,
-            sentence: create_sentence_sentence,
-            sesh: u
+
+        let ret = await post_sentence(create_sentence_sentence, chosen_word.id)
+        if(ret.data){
+            toast("Sentence Created", 2000, "rgb(0,150,0)","white")
+            let my_s = sentences.get(chosen_word.id) ?? []
+            my_s.push(ret.data);
+            sentences.set(chosen_word.word, my_s);
+            sentences = sentences;
+
+            create_sentence_sentence = {
+                sentence: ["",""],
+                translation: ["","",""]
+            }
+        } else {
+            console.error(ret.error)
+            toast("There was an API error(Try refreshing the page or relogging in) :(", 2000, "rgb(100,0,0)","white")
         }
-        let new_sentence = await fetch("/aapi/create/sentence",{
-            method: "POST",
-            body: JSON.stringify(data)
-        }).then(res => res.json())
-        .catch(err => {
-            error = true
-            error_message = "There was a sentence API error :( " + err
-        })
 
-        success = true
-        success_message = "Created Sentence"
 
-        let my_s = sentences.get(chosen_word.word) ?? []
-        my_s.push(new_sentence);
-        sentences.set(chosen_word.word, my_s);
-        sentences = sentences;
-
-        create_sentence_sentence = {
-            sentence: ["",""],
-            translation: ["","",""]
-        }
     }
     function create_tag(){
 
@@ -97,7 +70,7 @@
             if (a.competence_object.learning_step != b.competence_object.learning_step) {
                 return  a.competence_object.learning_step - b.competence_object.learning_step
             } else {
-                return (sentences.get(a?.word)?.length ?? 0) - (sentences.get(b?.word)?.length ?? 0)
+                return (sentences.get(a?.id)?.length ?? 0) - (sentences.get(b?.id)?.length ?? 0)
             }
         }
         if (a.competence_object?.status == 'learning') return -1
@@ -115,13 +88,6 @@
         }
         searched_words = words.filter((w) => w.word.includes(t))
     }
-
-    $: if (error == true) {
-        setTimeout(() => error = false, 4000)
-    }
-    $: if (success == true) {
-        setTimeout(() => success = false, 1000)
-    }
 </script>
 <div class='container' in:blur>
     <div>
@@ -133,7 +99,7 @@
                     <span class="word_grid" on:click={() => chosen_word=w} on:keypress={() => chosen_word=w} > 
                         <span>{w.word}</span>
                         <span>{w?.competence_object?.status}</span>
-                        <span>#s{sentences.get(w.word)?.length ?? 0}</span>
+                        <span>#s{sentences.get(w.id)?.length ?? 0}</span>
                     </span>
                 {/each}
             </div>
@@ -161,7 +127,7 @@
                     </div>
                 </div>
                 <div class="chosen_sentences">
-                    {#each sentences.get(chosen_word?.word) ?? [] as s}
+                    {#each sentences.get(chosen_word?.id) ?? [] as s}
                     <div>
                         {s.text[0]}{chosen_word?.word}{s.text[1]}
                         <br/>
@@ -177,7 +143,11 @@
         <input id="word_to_create" bind:value={create_word_word}/>
         <button on:click={(e) => create_word(e)}>Create Word</button>
     </div>
-    {#if error == true}
+
+    <div class='toast'>
+        <ToastCol />
+    </div>
+    <!-- {#if error == true}
     <div transition:blur class='toast error'>
         {error_message}
     </div>
@@ -186,7 +156,7 @@
     <div transition:blur class='toast success'>
         {success_message}
     </div>
-    {/if}
+    {/if} -->
 </div>
 <style>
     .container{
@@ -196,11 +166,11 @@
         position: fixed;
         bottom: 10px;
         right: 10px;
-        border-radius: 10px;
-        padding: 1em;
-        box-shadow: 0 0 5px black;
+        /* border-radius: 10px; */
+        /* padding: 1em; */
+        /* box-shadow: 0 0 5px black; */
     }
-    .error{
+    /* .error{
         color: white;
         background-color: rgba(200,0,0);
         font-weight: 800;
@@ -211,7 +181,7 @@
         background-color: rgb(22, 76, 22);
         font-weight: 800;
         font-size: 1em;
-    }
+    } */
     .words{
         margin: 0em 0;
         padding: 0 1em 1em 1em;

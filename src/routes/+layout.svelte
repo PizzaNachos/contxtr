@@ -37,6 +37,7 @@
 			<a href="/create">Create stuff</a>
 		</div>
 		<button on:click={logout} class="logout">Logout</button>
+		{$user.user.email}
 	</header>
 
 	<main class:loading>

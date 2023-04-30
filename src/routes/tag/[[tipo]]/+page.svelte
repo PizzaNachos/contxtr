@@ -1,9 +1,10 @@
 <script lang="ts">
-	import Sentence from '$lib/images/Sentence.svelte';
+	import Sentence from '$lib/components/Sentence.svelte';
     import { each } from 'svelte/internal';
-	import type {WordType, SentenceType} from "../../aapi/types";
+	import type {WordType, SentenceType} from "$lib/types";
     import { invalidateAll } from '$app/navigation';
 	import {draw, blur} from 'svelte/transition'
+	import { update_word_database } from '$lib/update';
 
 	export let data;
 
@@ -21,39 +22,36 @@
 	}
 
 	let word = words.shift() ?? null// ?? test_word;
-	$: currenct_sentences = sentence_map.get(word?.word ?? "")?.sort((a,b) => a.last_seen < b.last_seen) ?? [];
+	$: currenct_sentences = sentence_map.get(word?.id ?? "")?.sort((a,b) => a.last_seen < b.last_seen) ?? [];
 	$: s = currenct_sentences.shift()
 	let sentence_loading = false;
 
-	async function update_word(level){
+	async function update_word(level: 1 | 2 | 3 | 4){
+
+		let word_clone = structuredClone(word);
 		sentence_loading = true;
-		let data = {
-			word: word,
-			change: level,
-			sentence_id: s.id
+		word = words.shift() ?? null;
+		sentence_loading = false;
+
+		try {
+			let new_w : WordType = await update_word_database({word: word_clone,change: level,sentence_id: s.id});
+			if (new_w != null){
+				let i = 0;
+				while (i < words.length && words[i].next_study < new_w.next_study){
+					i += 1
+				}
+				words.splice(i,0,word)
+			} else {
+				if(word == null){
+					invalidateAll();
+				}
+			}
+		} catch(e){
+
 		}
 
-		let new_w = await fetch("/aapi/update/word", {
-			method: "POST",
-			body: JSON.stringify(data),
-		}).then(res => res.json())
-
-		if (new_w != ""){
-			let i = 0;
-			while (i < words.length && words[i].next_study < new_w.next_study){
-				i += 1
-			}
-			words.splice(i,0,word)
-			word = words.shift() ?? test_word;
-		} else {
-			word = words.shift() ?? null;
-			if(word == null){
-				invalidateAll();
-			}
-		}
 		words = words;
 		currenct_sentences.splice(currenct_sentences.length, 0, s)
-		sentence_loading = false;
 	}
 </script>
 
