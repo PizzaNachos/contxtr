@@ -38,10 +38,17 @@ export async function refresh_user(){
 }	
 
 export async function login(usr : {usr:string, psw:string}) {
+    user.set({
+        user: null,
+        logged_in: 0,
+        loading: true
+    })
+
     const s = await supabase.auth.signInWithPassword({
         email: usr.usr.trim(),
         password: usr.psw.trim(),
     })
+
     if(s.data.user != null) {
         console.log("Logged in",s)
         user.set({
@@ -49,8 +56,14 @@ export async function login(usr : {usr:string, psw:string}) {
             logged_in: 1,
             loading: false
         })
+        if(browser){
+            await invalidateAll()
+        }
     } else {
         console.error("Not loggen in",s)
+        if(browser){
+            await invalidateAll()
+        }
         user.set({
             user: null,
             logged_in: -1,
@@ -64,6 +77,8 @@ export async function logout(){
     if(!data.error){
         user.set({user:null, logged_in:-1, loading: false})
         // invalidate("Äuth")
-        invalidateAll()
+        if(browser){
+            await invalidateAll()
+        }    
     }
 }

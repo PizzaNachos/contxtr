@@ -3,6 +3,7 @@ export interface Competence {
     ease: number,
     learning_step: 1 | 2 | 3 | 4
 }
+
 export interface WordType{
     id: number,
     word: string,
@@ -17,4 +18,11 @@ export interface SentenceType{
     target: number,
     match_regex: string,
     translation: [string,string, string]
+}
+
+export interface TagType{
+    name:string,
+    user_id:string,
+    id:number,
+    created_at:string
 }

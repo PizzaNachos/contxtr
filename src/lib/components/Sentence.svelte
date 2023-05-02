@@ -1,6 +1,6 @@
 <script lang="ts">
   import { fade } from "svelte/transition";
-  import type { SentenceType, WordType } from "../../routes/aapi/types";
+  import type { SentenceType, WordType } from "$lib/types";
 
   export let me: SentenceType | any;
   export let target: WordType | any;

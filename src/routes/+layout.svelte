@@ -1,13 +1,12 @@
 <script context="module">
-	import {refresh_user} from "$lib/user_store"
-	refresh_user()
-
 </script>
 <script lang="ts">
 	import './styles.css';
 	import {blur} from 'svelte/transition'
     import { afterNavigate, beforeNavigate } from '$app/navigation';
 	import { user, login,logout } from '$lib/user_store';
+	import { onMount } from "svelte";
+	import {refresh_user} from "$lib/user_store"
 
 	let usr = {
 		usr:"",
@@ -20,14 +19,21 @@
 	afterNavigate(() => {
 		loading = false
 	})
+	onMount(async() => {
+		await refresh_user()
+	})
 </script>
 
 <div>
 {#if $user.logged_in == -1}
 	<main>
+		<div>
+			Welcome to Contxtr, the Language Vocab Flash Card App (With Context!)
+		</div>
+		Login
 		<input type=text bind:value={usr.usr}/>
 		<input type=password bind:value={usr.psw}/>
-		<button on:click={() => login(usr)}>L</button>
+		<button on:click={() => login(usr)}>Login</button>
 	</main>
 {:else if $user.logged_in == 1}
 	<header>
@@ -41,8 +47,17 @@
 	</header>
 
 	<main class:loading>
-		<slot />
+		{#if loading}
+			<span class='word'>Loading</span>
+		{/if}
+		<div class="content">
+			<slot />
+		</div>
 	</main>
+
+	<footer>
+		This is an open source project
+	</footer>
 {:else if $user.logged_in == 0 }
 	<div class='l_c'>
 		<div class="auth_loading">
@@ -59,7 +74,24 @@
 	main{
 		padding: 3em;
 		transition: opacity .25s ease-in-out;
+		min-height: 90vh;
 	}
+	main .word{
+		padding: 3em;
+		animation: flash_word 1s linear;
+	}
+	@keyframes flash_word {
+		0% {
+			color: rgb(150, 150, 150);
+		}
+		50%{
+			color: rgb(250, 250, 250);
+		}
+		100% {
+			color: rgb(150, 150, 150);
+		}
+	}
+
 	header {
 		/* width: 100%; */
 		position: sticky;
@@ -75,7 +107,12 @@
 		font-size: 2em;
 		padding: 1em;
 	}
-	header > button{
+	footer{
+		background-color: rgb(30,30,30);
+		height: 25vh;
+		padding: 5em;
+	}
+	button{
 		background-color: inherit;
 		font-size: 1rem;
 		transition: all .32s ease-in-out;
