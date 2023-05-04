@@ -66,7 +66,7 @@
 		<span in:blur>
 			<div>Nothing left to study</div>
 			<br/>			
-			<a href="/tag?time=future">Study ahead by 1 hour</a> or <a href="/create">Create more words</a>
+			<a href="/study?time=future">Study ahead by 1 hour</a> or <a href="/create">Create more words</a>
 		</span>
 	{:else}
 	<span in:blur>
