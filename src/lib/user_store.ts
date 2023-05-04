@@ -56,19 +56,16 @@ export async function login(usr : {usr:string, psw:string}) {
             logged_in: 1,
             loading: false
         })
-        if(browser){
-            await invalidateAll()
-        }
     } else {
         console.error("Not loggen in",s)
-        if(browser){
-            await invalidateAll()
-        }
         user.set({
             user: null,
             logged_in: -1,
             loading: false
         })
+    }
+    if(browser){
+        await invalidateAll()
     }
 }
 export async function logout(){
@@ -76,9 +73,8 @@ export async function logout(){
     let data = await supabase.auth.signOut();
     if(!data.error){
         user.set({user:null, logged_in:-1, loading: false})
-        // invalidate("Äuth")
-        if(browser){
-            await invalidateAll()
-        }    
+    }
+    if(browser){
+        await invalidateAll()
     }
 }

@@ -56,9 +56,10 @@
 </script>
 
 <svelte:head>
-	<title>Home</title>
+	<title>Contxtr: Studying {words.length}</title>
 	<meta name="description" content="Contxt App" />
 </svelte:head>
+
 
 <div class=parent in:blur>
 	{#if (words.length == 0 && word == null)}

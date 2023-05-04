@@ -2,13 +2,13 @@
 </script>
 
 <svelte:head>
-	<title>Home</title>
+	<title>Contxt'r</title>
 	<meta name="description" content="Contxt App" />
 </svelte:head>
 
 <div class=parent>
-	<a href="/tag">Words</a>
-	<a href="/create">Create stuff</a>
+	<a href="/study">Study</a>
+	<a href="/create">Create words and Sentences</a>
 </div>
 
 <style>

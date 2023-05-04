@@ -103,6 +103,11 @@
         searched_words = words.filter((w) => w.word.includes(t))
     }
 </script>
+
+<svelte:head>
+	<title>Contxtr: Creating</title>
+	<meta name="description" content="Contxt App" />
+</svelte:head>
 <div class='container' in:blur>
     <div class="words">
         <input type=text placeholder="search" on:input={(e) => search_words(e)}/>

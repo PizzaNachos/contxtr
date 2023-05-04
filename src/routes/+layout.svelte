@@ -36,10 +36,11 @@
 		<button on:click={() => login(usr)}>Login</button>
 	</main>
 {:else if $user.logged_in == 1}
+<div class="page">
 	<header>
 		<a href="/">Contxt'r</a>
 		<div class='links'>
-			<a href="/tag">Words</a>
+			<a href="/study">Study</a>
 			<a href="/create">Create stuff</a>
 		</div>
 		<button on:click={logout} class="logout">Logout</button>
@@ -58,7 +59,8 @@
 	<footer>
 		This is an open source project
 	</footer>
-{:else if $user.logged_in == 0 }
+</div>
+{:else}
 	<div class='l_c'>
 		<div class="auth_loading">
 			<span>Loading</span>
@@ -68,13 +70,36 @@
 </div>
 
 <style>
+	.page{
+		min-height: 100vh;
+	}
 	.l_c{
 		height:100vh;
 	}
+	.auth_loading{
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		width: 100%;
+		height: 100%;
+		animation: 1s ease 0s infinite loading_anim;
+	}
+	@keyframes loading_anim {
+	0% {
+		background-color: inherit;
+	}
+	50%{
+		background-color: rgb(50, 50, 50);
+	}
+	100% {
+		background-color: inherit;
+	}
+}
 	main{
 		padding: 3em;
 		transition: opacity .25s ease-in-out;
-		min-height: 90vh;
+		min-height: 65vh;
 	}
 	main .word{
 		padding: 3em;
@@ -93,7 +118,6 @@
 	}
 
 	header {
-		/* width: 100%; */
 		position: sticky;
 		background-color: rgb(30,30,30);
 		padding: 1em;
@@ -102,6 +126,7 @@
 		justify-content: flex-start;
 		align-items: center;
 		gap: 2em;
+		height: 10vh;
 	}
 	header > a{
 		font-size: 2em;

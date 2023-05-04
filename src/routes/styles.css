@@ -15,15 +15,7 @@ a{
 	color: white;
 }
 
-.auth_loading{
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-	width: 100%;
-	height: 100%;
-	animation: 2s ease 0s infinite loading_anim;
-}
+
 .loading{
 	transition: all .25s ease-in-out;
 }
