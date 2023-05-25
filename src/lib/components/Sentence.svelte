@@ -9,13 +9,13 @@
 
   let input_val = "";
   function check(e: any) {
-    let i = e?.target?.value;
+    let i : string = e?.target?.value?.trim().toLowerCase();
     if (target.reverse) {
-      if (i == target.word) {
+      if (i == target.word.trim().toLowerCase()) {
         shown = 2;
       }
     } else {
-      if (i == me.match_regex) {
+      if (i == me.match_regex.trim().toLowerCase()) {
         shown = 2;
       }
     }
