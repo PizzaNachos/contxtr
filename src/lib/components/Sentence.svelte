@@ -22,10 +22,8 @@
   }
 
   let shown = 0;
-  function show_translation() {
-    if (shown < 2) {
-      shown += 1;
-    }
+  function show_translation(level : number) {
+    shown = level;
   }
   function update(level) {
     input_val = "";
@@ -48,24 +46,27 @@
     </span>
     <input class={shown == 2 ? "disabled" : ""} type="text" on:input={(e) => check(e)} bind:value={input_val}/>
     <div>
-      {#if shown == 0}
-        <button on:click={() => show_translation()}> Show </button>
-      {:else if shown == 1}
-        <button on:click={() => show_translation()}> Show All </button>
+      <!-- {#if shown == 0};e -->
+        <button on:click={() => show_translation(1)}> Show </button>
+      <!-- {:else if shown == 1} -->
+        <button on:click={() => show_translation(2)}> Show All </button>
+      <!-- {/if} -->
+    </div>
+
+    <div>
+      {#if shown > 0}
+        <span class="translation" in:fade>
+          <span>{me.text[0]}</span><span>
+            {#if shown == 1}
+              {"_".repeat(target.word.length)}
+            {:else if shown == 2}
+              {target.word}
+            {/if}
+          </span><span>{me.text[1]}</span>
+        </span>
       {/if}
     </div>
 
-    {#if shown > 0}
-      <span class="translation" in:fade>
-        <span>{me.text[0]}</span><span>
-          {#if shown == 1}
-            {"_".repeat(target.word.length)}
-          {:else if shown == 2}
-            {target.word}
-          {/if}
-        </span><span>{me.text[1]}</span>
-      </span>
-    {/if}
 
     <div class="finish_buttons" in:fade>
       {#if shown == 2}
@@ -101,24 +102,27 @@
     </span>
     <input class={shown == 2 ? "disabled" : ""} type="text" on:input={(e) => check(e)} bind:value={input_val} />
     <div>
-      {#if shown == 0}
-        <button on:click={() => show_translation()}> Show </button>
-      {:else if shown == 1}
-        <button on:click={() => show_translation()}> Show All </button>
+      <!-- {#if shown == 0};e -->
+        <button on:click={() => show_translation(1)}> Show </button>
+      <!-- {:else if shown == 1} -->
+        <button on:click={() => show_translation(2)}> Show All </button>
+      <!-- {/if} -->
+    </div>
+
+    <div>
+      {#if shown > 0}
+        <span class="translation" in:fade>
+          {me.translation[0]}
+          {#if shown == 1}
+            {"_".repeat(target.word.length)}
+          {:else if shown == 2}
+            {me.translation[1]}
+          {/if}
+          {me.translation[2]}
+        </span>
       {/if}
     </div>
 
-    {#if shown > 0}
-      <span class="translation" in:fade>
-        {me.translation[0]}
-        {#if shown == 1}
-          {"_".repeat(target.word.length)}
-        {:else if shown == 2}
-          {me.translation[1]}
-        {/if}
-        {me.translation[2]}
-      </span>
-    {/if}
 
     <div class="finish_buttons" in:fade>
       {#if shown == 2}

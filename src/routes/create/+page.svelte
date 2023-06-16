@@ -3,9 +3,12 @@
 	import { blur} from 'svelte/transition'
     import { post_sentence, post_word, post_tag } from '$lib/create.js';
     import ToastCol, { toast } from '$lib/components/Toast_col.svelte';
+  import TagAdder from '$lib/components/TagAdder.svelte';
 
     export let data;
     let { tags_map, words, sentences,tags } = data
+
+    console.log(tags_map, tags);
 
     let create_word_word =""
     let create_tag_tag = ""
@@ -161,32 +164,16 @@
       
             </div>
 
-            <div class="create_tag">
-                <input id="tag_to_create" bind:value={create_tag_tag}/>
-                <button on:click={(e) => create_tag(e)}>Create a new Tag</button>
-                <div class="add_tag_to_word">
-                    <div class="chosen_sentences">
-                        {#if (tags_map.get(chosen_word?.id)?.length ?? 0) > 0 }
-                            Tags for {chosen_word.word ?? ""}
-                        {:else}
-                            No tags for {chosen_word.word ?? ""}
-                        {/if}
-                        {#each tags_map.get(chosen_word?.id) ?? [] as s}
-                            <div>
-                                {s.name}
-                            </div>
-                        {/each}
-                    </div>
-                </div>
-                <div class="tags">
-                    {#each tags as t}
-                        {JSON.stringify(t)}            
-                    {/each}
-                </div>
-            </div>
-                </div>
+
+        </div>
 
 
+        <div>
+            <input id="tag_to_create" bind:value={create_tag_tag}/>
+            <button on:click={(e) => create_tag(e)}>Create a new Tag</button>
+        </div>
+
+    <TagAdder word={chosen_word} tags={tags} tag_map={tags_map}/>
     <div class='toast'>
         <ToastCol />
     </div>

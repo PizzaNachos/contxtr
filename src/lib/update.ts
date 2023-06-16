@@ -2,6 +2,7 @@ import { error, json } from '@sveltejs/kit';
 import type { RequestHandler } from "@sveltejs/kit";
 import type { Competence, SentenceType, WordType } from './types';
 import { supabase } from '$lib/supabase_client';
+import { get_user_id } from './user_store';
 
 const calculate_new_competence = (old : Competence, change : 1|2|3|4) => {
     let updated : Competence = old
@@ -121,4 +122,28 @@ export async function update_word_database(req : {word: WordType, change: 1 | 2 
     } else {
         return null
     }
+}
+
+export async function add_tag_database(tag, word) {
+    let user = await get_user_id()
+
+    const sp = await supabase
+        .from('word_to_tag')
+        .insert({
+            word_id: word.id,
+            tag_id:tag.id,
+            user_id: user
+        })
+        // .update({ competence_object: new_competence, next_study: next_study, reverse: word.reverse ? false : true})
+        // .eq('id', word.id)
+}
+
+export async function remove_tag_database(tag, word) {
+    let user = await get_user_id()
+    const sp = await supabase
+        .from('word_to_tag')
+        .delete()
+            .eq("word_id", word.id)
+            .eq("tag_id",tag.id)
+            .eq("user_id", user)
 }

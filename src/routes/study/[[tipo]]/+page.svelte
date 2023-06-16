@@ -8,7 +8,8 @@
 
 	export let data;
 
-	let {sentence_map, words} = data;
+	let {sentence_map, words, tags} = data;
+
 	let test_word : WordType = {
 		competence_object: {
 			ease: 0,
@@ -61,28 +62,39 @@
 </svelte:head>
 
 
-<div class=parent in:blur>
-	{#if (words.length == 0 && word == null)}
+<div class="cont">
+	<div class=parent in:blur>
+		{#if (words.length == 0 && word == null)}
+			<span in:blur>
+				<div>Nothing left to study</div>
+				<br/>			
+				<a href="/study?time=future">Study ahead by 1 hour</a> or <a href="/create">Create more words</a>
+			</span>
+		{:else}
 		<span in:blur>
-			<div>Nothing left to study</div>
-			<br/>			
-			<a href="/study?time=future">Study ahead by 1 hour</a> or <a href="/create">Create more words</a>
+			<Sentence 
+			me={s} 
+			target={word} 
+			update_function={update_word}
+			loading_w={sentence_loading}
+			/>
+		<span>Words left to study {words.length}</span>
 		</span>
-	{:else}
-	<span in:blur>
-		<Sentence 
-		me={s} 
-		target={word} 
-		update_function={update_word}
-		loading_w={sentence_loading}
-		/>
-	<span>Words left to study {words.length}</span>
-	</span>
-	{/if}
-
+		{/if}
+	</div>
+	<div class='tags'>
+		{#each tags as t}
+			<a href="/study/{t.name}">{t.name}</a>
+		{/each}
+	</div>
 </div>
 
+
 <style>
+	.cont{
+		display: grid;
+		grid-template-columns: 1fr 25ch;
+	}
 	.parent{
 		display: flex;
 		flex-direction: column;
@@ -93,5 +105,11 @@
 	}
 	.parent a {
 		text-decoration: underline;
+	}
+	.tags{
+		display: flex;
+		flex-direction: column;
+		gap: 1em;
+		
 	}
 </style>

@@ -28,31 +28,55 @@ export const load = async ({params, url, fetch, depends}) => {
 
 
     let tag_supabase = (await supabase.from("tags").select().eq("name", tag));
+
+    console.log("Tag from database", tag_supabase)
     let tag_id = tag_supabase.data?.at(0)?.id ?? -1
+    console.log("Tag id", tag_id);
+
     let words = [];
     if (tag_id != -1){
-        let { data } = await supabase
+        console.log("Getting words with tag " + tag)
+
+        let data = await supabase
             .from("words")
-            .select("*, word_to_tag(*)")
+            .select("id, word, next_study, competence_object, reverse, word_to_tag!inner(*)")
             .eq("user_id", u)
             .eq("word_to_tag.tag_id", tag_id)
-            .lt('next_study', next_study)
-            .order('next_study', 
-                { ascending: true }
-            );
-        console.log("data",data)
+            .lt('next_study', next_study);
+
+        console.log(data)
+
+        data = data.data
         words = data ?? []
+        for (let i = 0; i < words.length; i++) {
+            let rand = Math.floor(Math.random() * words.length);
+
+            let tmp = words[i];
+            words[i] = words[rand];
+            words[rand] = tmp;
+        }
+
     } else {
+        console.log("Getting all words")
         let { data } = await supabase
             .from("words")
             .select()
             .eq("user_id", u)
-            .lt('next_study', next_study)
-            .order('next_study', 
-                { ascending: true }
-            );
+            .lt('next_study', next_study);
+
         console.log("First fetch data", data)
         words = data ?? []
+
+
+        // Scramble due words, make it essentially burry words that were added next to each other
+        for (let i = 0; i < words.length; i++) {
+            let rand = Math.floor(Math.random() * words.length);
+
+            let tmp = words[i];
+            words[i] = words[rand];
+            words[rand] = tmp;
+        }
+    
     }
 
     console.log("Number of words", words.length)
@@ -79,10 +103,15 @@ export const load = async ({params, url, fetch, depends}) => {
         test_map.set(all_sen[i].word_id, tmp_arr)
     }
 
-    console.log(test_map)
+    // console.log(test_map)
 
+
+    let tags = (await supabase
+        .from("tags")
+        .select("*")).data
 
     return {
+        tags:tags,
         sentence_map: test_map,
         words: words
     }

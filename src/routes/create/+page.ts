@@ -21,7 +21,7 @@ export const load: PageLoad = async ({ params }) => {
                 .from("tags")
                 .select("id, name, word_to_tag(word_id)"))
     let all_tags = tags.data
-    console.log("Pre Data", all_tags);
+    // console.log("Pre Data", all_tags);
 
     let tag_map = new Map()
     // Need a tag to word map but also a word to tag map and also just a list of tags?
@@ -35,7 +35,7 @@ export const load: PageLoad = async ({ params }) => {
         }
     }
 
-    console.log("TAGS",tag_map);
+    // console.log("TAGS",tag_map);
 
     let test = await supabase
         .from('sentences')
